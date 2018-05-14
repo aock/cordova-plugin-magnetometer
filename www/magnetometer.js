@@ -12,16 +12,23 @@ Magnetometer.prototype = {
     // TODO: Instead of single reading, this currently adds a watch on iOS
     cordova.exec(successCallback, errorCallback, "Magnetometer", "getReading", []);
   },
-  watchReadings: function(successCallback, errorCallback){
+  watchReadings: function(successCallback, errorCallback, options){
     // Start watch timer to get magnitude
     var magnetometer = this,
         id = utils.createUUID();
     if (cordova.platformId === 'android') {
       // TODO: Instead of using setInterval it would be ideal if Android code
       // executes callback directly from sensor listener.
+      var interval = 40;
+       
+      if( typeof options !== 'undefined' && 'interval' in options)
+      {
+        interval = options['interval'];
+      }
+       
       timers[id] = window.setInterval(function() {
           magnetometer.getReading(successCallback, errorCallback);
-      }, 40); // every 40 ms (25 fps)
+      }, interval); // every 40 ms (25 fps)
     } 
     else cordova.exec(successCallback, errorCallback, "Magnetometer", "watchReadings", []);
     return id;
